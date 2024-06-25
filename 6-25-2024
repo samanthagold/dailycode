@@ -1,0 +1,51 @@
+-- StrataScratch 
+-- utl : https://platform.stratascratch.com/coding/10367-aggregate-listening-data?code_type=1
+-- level: easy 
+-- key detail: data cleaning carefulness shown (aka null values needed to be converted to 0 before summing)
+
+
+
+-- solution 
+
+SELECT user_id, 
+       SUM(cleaned.listen_duration)/60 AS total_listen_duration, 
+       COUNT(DISTINCT cleaned.song_id) AS unique_song_count
+FROM 
+(SELECT user_id, 
+        CASE 
+            WHEN listen_duration IS NULL THEN 0 
+            ELSE listen_duration
+        END AS listen_duration, 
+        song_id
+ from listening_habits) AS cleaned
+GROUP BY user_id
+
+
+-- attempts 
+-- attempt 1 
+select user_id, 
+       SUM(listen_duration) AS total_listen_duration, -- need alias included here + divide by 60 
+       COUNT(song_id) AS unique_song_count            -- need alias here 
+FROM 
+(select user_id, 
+        CASE 
+            WHEN listen_duration IS NULL THEN 0 
+            ELSE listen_duration
+        END AS listen_duration, 
+        song_id
+ from listening_habits) -- missing alias 
+GROUP BY user_id
+
+
+
+
+-- random lessons
+    -- COUNT(DISTINCT column_name) will ignore NULL values because NULL is not considered a distinct value 
+    -- COUNT(DISTINCT ...) can be slower compared to COUNT(*) because it requires sorting and removing     duplicates to find the unique values 
+    -- syntax for partitioning: 
+
+    select user_id, 
+           SUM(cleaned.listen_duration) OVER (PARTITION BY user_id) AS total_listen_duration 
+    from listening_habits 
+
+
