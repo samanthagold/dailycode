@@ -1,0 +1,64 @@
+-- level: easy 
+-- key takeaways: 
+    -- 
+-- top 3 sellers in each product category for January 
+-- problem: need to come up with a rank column that identifies the top 3 sellers in each product category
+-- group_by(product_caetgory)
+-- RANK() OVER (PARTITION BY Varname ORDER BY varname DESC) as ProductRank 
+-- you can do select * and then add a variable name 
+-- WITH table_name AS () and then add in the data 
+
+
+-- my solution
+
+select prepped.seller_id, 
+       prepped.total_sales, 
+       prepped.product_category, 
+       prepped.market_place, 
+       prepped.month 
+from(
+SELECT 
+    seller_id, 
+    total_sales,
+    product_category, 
+    market_place, 
+    month, 
+    RANK() OVER (PARTITION BY product_category ORDER BY total_sales DESC) as ProductRank
+FROM sales_data
+WHERE month = '2024-01'
+
+) AS prepped
+WHERE ProductRank <= 3 
+
+
+-- the proposed solution 
+    -- first step restrict to january tables 
+    WITH january_sales AS (
+    SELECT *
+    FROM sales_data
+    WHERE month = '2024-01'
+    )
+    -- second step is to then rank the january sales 
+    ranked_sales AS (
+    SELECT
+        *,
+        DENSE_RANK() OVER (PARTITION BY product_category ORDER BY total_sales DESC) AS sales_rank
+    FROM january_sales
+    )
+    -- third step is to then put everything together 
+    SELECT
+        seller_id,
+        total_sales,
+        product_category,
+        market_place,
+        month
+        FROM ranked_sales
+    WHERE
+        sales_rank <= 3
+    ORDER BY
+        product_category, sales_rank
+
+-- notes 
+    -- using WITH tablename AS () is helpful for organization
+    -- DENSE_RANK() should be used because in the case of ties it makes sure to order things sequentially 
+    -- in the event of a three-way tie, RANK() would number things as 1, 2, 5 where DENSE_RANK() would number things 1, 2, 3, 4, 5
