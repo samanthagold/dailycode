@@ -1,0 +1,50 @@
+-- level: easy 
+-- problem: 
+    -- device type level 
+    -- find the time period with the highest number of active users 
+-- output: 
+    -- user_count | time_period | device_type 
+-- testing: 
+    -- CONCAT(column1, ' ', column2) 
+    -- DENSE_RANK() OVER (PARTITION BY varname1 ORDER BY varname2 DESC) 
+
+
+-- my solution: SQL
+
+WITH cleaned AS(
+
+    SELECT *, 
+           DENSE_RANK() OVER (PARTITION BY device_type ORDER BY user_count DESC) AS device_ranking, 
+           CONCAT(start_timestamp, ' to ', end_timestamp) AS time_period
+    FROM user_activity 
+
+)
+
+SELECT user_count, 
+       time_period, 
+       device_type
+FROM cleaned
+WHERE device_ranking = 1
+
+
+
+-- alternative solutions notes
+    -- CONCAT(start_timestamp, ' to ', end_timestamp) could also be done as start_timestamp|| ' to ' ||end_timestamp as time_period 
+
+
+-- R solution
+user_activity %>% 
+    group_by(device_type) %>% 
+    arrange(device_type, desc(user_count)) %>% 
+    mutate(max_value = max(user_count), 
+          keep_flag = case_when(max_value == user_count ~ 1, TRUE ~ 0)) %>% 
+    ungroup() %>% 
+    filter(keep_flag == 1) %>% 
+    mutate(time_period = paste0(start_timestamp, " to ", end_timestamp)) %>% 
+    select(user_count, time_period, device_type)
+
+-- notes from R exercise
+    -- did mutate(rank = row_number()) after the arrange() but wasn't correct because it was only 3 rows 
+    -- instead of the expected 4. It only kept the first row, not the max value which is what was preferred 
+    -- intrestingly, you could have just done slice_max(user_count) after the group by which would have been nice 
+    -- the arrange() is also not needed if you are doing max_value and keep_flag like the above

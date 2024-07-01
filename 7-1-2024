@@ -1,0 +1,49 @@
+-- level: easy 
+-- notes 
+    -- problem: a feature that suggests individual movies from Amazon's content database that fit within a flight's duration
+    -- details: 
+        -- flight 1010 only 
+        -- runtime <= flight duration 
+    -- output: flight_id | movie_id | movie_duration 
+
+
+
+
+-- my solution 
+with cleaned as (
+select * from entertainment_catalog 
+INNER JOIN flight_schedule AS sched
+ON flight_id = sched.flight_id
+WHERE flight_id = 101
+)
+
+select flight_id, 
+       movie_id, 
+       duration AS movie_duration 
+from cleaned 
+where duration <= flight_duration
+
+
+-- notes: 
+    -- re-figuring out INNER JOIN syntax on SQL 
+    -- renaming a column is as simple as doing og_columnname AS new_columnname 
+
+
+-- proposed solution 
+SELECT
+    fs.flight_id,
+    ec.movie_id,
+    ec.duration AS movie_duration
+FROM
+    flight_schedule fs
+JOIN
+    entertainment_catalog ec ON ec.duration <= fs.flight_duration
+WHERE
+    fs.flight_id = 101  -- Specify the flight ID here
+ORDER BY
+    ec.duration;
+
+-- notes: 
+    -- like the way this is structured 
+    -- doing a join to figure out to exclude movies that do not meet criteria
+    -- cleaner solution 
