@@ -1,0 +1,61 @@
+-- level: easy 
+-- problem: restrict to last_name = 'Johnson' 
+-- time needed to complete: 2:00 
+
+
+-- my solution
+SELECT 
+    first_name, 
+    last_name
+FROM
+    employee_list
+WHERE 
+    LOWER(last_name) = 'johnson' AND 
+    profession = `Doctor`
+    
+-- notes
+    -- the system doesn't like my answer because it includes other Johnsons in the database but I think my solution is more complete  
+    -- read the question carefully to make sure you aren't missing any details...the error that you made here was from you not filtering things correctly 
+
+
+-- problem #2
+-- note: above problem was too simple so started another one 
+-- time: 14:02
+
+
+-- proposed solution 
+-- absolute difference in salaries 
+-- one table at the db_employee level 
+-- one table at the db_dept level 
+with intermediate as (
+
+    select *, 
+           MAX(salary) OVER (PARTITION BY department) as maxsal 
+    from db_employee e 
+    inner join db_dept d
+    ON e.department_id = d.id
+    WHERE department IN ('marketing', 'engineering') 
+
+)
+
+select * from intermediate
+
+-- solution part 2: 
+with prepped as(
+    SELECT
+        DISTINCT MAX(salary) OVER (PARTITION BY department) AS maxsal
+    FROM 
+        db_employee emp
+    INNER JOIN 
+        db_dept dpt
+    ON emp.department_id = dpt.id
+    WHERE
+        department IN ('marketing', 'engineering')
+        
+)
+
+select ABS(max(maxsal) - min(maxsal))
+FROM prepped
+
+-- I think there is an even cleaner way to do this...
+-- 
