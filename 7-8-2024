@@ -1,0 +1,15 @@
+-- level: medium
+-- notes: 
+    -- working with dates this time 
+    -- function: DATE_PART('time unit', CURRENT_DATE) - year <= 20
+    -- had to use hints, need to brush up on using dates in SQL 
+
+
+select  distinct 
+    song_name 
+from 
+    billboard_top_100_year_end
+where 
+    year_rank = 1 AND 
+    DATE_PART('year', CURRENT_DATE)-year <= 20
+    
