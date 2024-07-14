@@ -1,0 +1,41 @@
+-- level: medium
+-- time: 
+-- find top 10 users that have traveled the greatest distance
+-- expected output: id | name | total_distance_traveled 
+-- remember that slice() = LIMIT in SQL and that this should go at the very end of the statement 
+
+
+with cleaned as (
+    select 
+    distinct
+    log.user_id,  
+    name, 
+    SUM(distance) AS total_distance, 
+    RANK() OVER (ORDER BY SUM(log.distance) DESC) AS rank
+
+from 
+    lyft_rides_log log
+JOIN
+    lyft_users users
+    ON log.user_id = users.id
+GROUP BY 
+    log.user_id, users.name
+ORDER BY rank
+
+
+)
+
+select
+    user_id,
+    name, 
+    total_distance
+from cleaned
+where rank <= 10
+
+-- notes
+    -- initially wanted to use window function, but realized you needed to aggrgate two columns together
+    -- when should i use window functions and when should i aggregate? 
+        -- depends on the output that you want...
+        -- if you want to reduce the number of rows (i.e. the level of output dataset is less than the input) then use GROUP BY 
+
+
