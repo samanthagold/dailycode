@@ -1,0 +1,52 @@
+-- level: medium
+-- notes
+    -- find the total number of available beds per hosts' nationality 
+    -- output: nationality | total number of available beds 
+    -- output sorted by the total available beds in descending order 
+    -- inputs: 
+        -- host_id | apartment_id | apartment_type | n_beds | n_bedrooms | country 
+        -- host_id | nationality | gender | age 
+-- time: 5:42 
+
+
+
+with intermediate as (
+    select 
+        ap.host_id, 
+        ho.nationality, 
+        ap.n_beds
+    from 
+        airbnb_apartments ap
+    inner join
+        airbnb_hosts ho
+    on 
+        ap.host_id = ho.host_id
+
+
+)
+
+select
+    nationality, 
+    SUM(n_beds) AS num_beds 
+from 
+    intermediate
+group by 
+    nationality 
+order by 
+    SUM(n_beds) DESC
+
+-- alternative way to do this 
+select
+    nationality, 
+    SUM(n_beds) AS total_beds_available
+from 
+    airbnb_hosts h 
+inner join 
+    airbnb_apartments a 
+on 
+    h.host_id = as.host_id 
+GROUP BY nationality 
+ORDER BY 
+    total_beds_available DESC 
+
+
