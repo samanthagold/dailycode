@@ -1,0 +1,94 @@
+-- level: easy 
+-- input: 
+-- find last time each bike was in use 
+-- output: bike number | date-timestamp 
+-- ordering: order by the bikes that were most recently used 
+-- level of input data: bike-id level
+-- desired level of output data: bike level 
+
+
+select 
+    bike_number, 
+    MAX(end_time) as last_use
+from 
+    dc_bikeshare_q1_2012
+group by 
+    bike_number
+order by last_use DESC 
+
+    -- notes: easy solve for me 
+
+-- level: easy 
+-- no aggregation, just simple filter
+
+select 
+    * 
+from 
+    los_angeles_restaurant_health_inspections
+where 
+    program_status = 'INACTIVE'
+
+-- level: medium 
+-- goal: population density of the cities, rounded to the nearest integer
+--       identify the cities with the minimum and maximum densities 
+-- aggregation: city level ** both input and output 
+
+select 
+    city, 
+    ROUND(population / area, 3) as pop_density 
+from 
+    cities_population 
+where 
+    MIN(pop_density) = pop_density OR 
+    MAX(pop_density) = pop_density 
+
+-- issue with v1: can't use min and max in the where clause 
+
+
+with intermediate as (
+    select 
+        city,
+        country,  
+        ROUND(population / area, 3) AS pop_density, 
+        MIN(population / area) AS min.pop_density, 
+        MAX(population / area) AS max.pop_density
+    from 
+        cities_population 
+
+)
+
+-- reminder: window functions don't reduce the number of rows down
+-- group by functions do 
+
+with intermediate as (
+
+    select 
+        city,
+        country,  
+        population / NULLIF(area,0) as pop_density, 
+        MIN(population / NULLIF(area,0)) OVER () as min_den,
+        MAX(population / NULLIF(area,0)) OVER () as max_den
+    from 
+        cities_population
+        
+)
+
+select 
+    city, 
+    country, 
+    pop_density 
+from 
+    intermediate 
+where 
+    pop_density = min_den OR 
+    pop_density = max_den 
+
+
+-- NOTES
+    -- NULLIF: compare two expressions and return NULL if they are equal otherwise return the first expression. 
+        -- used to prevent division by zero or to handle cases where you want to treat certain values 
+        -- as null 
+        -- NULLIF(sales, 0) returns NULL for any sales value that is 0, treating 0s as Nulls 
+        -- data cleaning expression 
+    -- if you want to just get the min/max values but keep the number of the rows the same do 
+    -- MIN(var) OVER () with no partition or order or anything and you are set 
