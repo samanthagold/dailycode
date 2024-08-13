@@ -1,0 +1,19 @@
+-- level: easy 
+    -- might be time to try some medium level questions??
+
+-- order all countries by the year they first participated in the Olympics
+-- NOC | Year 
+-- sorted by year and NOC in ascending order 
+
+
+
+-- my solution 
+SELECT MIN(YEAR) as first_time_year, 
+       noc
+FROM olympics_athletes_events
+GROUP BY noc 
+ORDER BY first_time_year, noc
+
+
+-- proposed solution 
+    -- same as my solution 

@@ -1,0 +1,65 @@
+-- level: medium
+-- company: meta 
+-- status: never finished
+-- reattempt link: https://platform.stratascratch.com/coding/10352-users-by-avg-session-time?code_type=1
+
+-- notes
+
+    -- calculate each user's average session time 
+    -- session = time difference between page_load and page_exit 
+    -- data cleaning: if there are multiple of the same events, keep the latest page_load and earliest page_exit 
+    -- input: at the user_id/action level 
+    -- output: user_id + average session time 
+    -- remembered union all feature (rbind) 
+
+-- approach
+    -- (1) first need to do some data cleaning so that we are taking the latest and earliest page_load 
+    -- and earliest page exit 
+    -- (2) once data is cleaned, we need to do some joining to get the columns how we want 
+    -- (3) once we have the joined cleaned fields all you need to do 
+
+
+
+
+
+with cleaned as (
+    SELECT 
+        *, 
+        DATE(timestamp) AS day
+    FROM 
+        facebook_web_log 
+    WHERE action IN ('page_load', 'page_exit')
+    ORDER BY user_id, timestamp
+)
+
+    SELECT DISTINCT
+        user_id, 
+        AVG((min_exit - max_load)) OVER (PARTITION BY user_id) as avg_time
+    FROM (
+        SELECT DISTINCT 
+            c.user_id,
+            c.day,
+            MAX(CASE WHEN c.action = 'page_load' THEN c.timestamp END) OVER (PARTITION BY c.user_id, c.day) AS max_load,
+            MIN(CASE WHEN c.action = 'page_exit' THEN c.timestamp END) OVER (PARTITION BY c.user_id, c.day) AS min_exit,
+            d.action,
+            d.timestamp
+        FROM 
+            cleaned c
+        INNER JOIN 
+            cleaned d ON d.user_id = c.user_id
+        WHERE 
+            c.action IN ('page_load', 'page_exit')
+    ) subquery
+    WHERE 
+        action IN ('page_load', 'page_exit') 
+        AND (
+            timestamp = max_load
+            OR timestamp = min_exit
+        ) AND 
+        user_id < 2 -- this needs to be added
+    ORDER BY user_id
+
+
+
+
+

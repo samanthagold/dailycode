@@ -1,0 +1,40 @@
+-- level: medium
+-- notes: 
+    -- tried a previous meta question but it was too hard will go back to that one later 
+    -- identifies cities with higher than average home prices when compared to the national average 
+    -- output: city_names
+    -- zillow_transactions: id | state| city | street_address | mkt_price 
+    -- need to figure out the national average market price
+
+-- proposed solution 
+
+with city_avg as (
+    select 
+        city, 
+        avg(mkt_price) AS city_avg
+    from 
+        zillow_transactions
+    group by city
+)
+
+
+select distinct 
+    city 
+from 
+    city_avg
+where city_avg > (select avg(mkt_price) from zillow_transactions)
+
+
+-- notes: 
+    -- personally: i think this is cleaner than a lot of what is out there. 
+    -- a lot of the solutions use the "HAVING" clause 
+    -- HAVING: added to SQL because the WHERE keyword cannot be used with aggregate functions
+    -- ordering
+        -- SELECT 
+        -- FROM
+        -- WHERE
+        -- GROUP BY 
+        -- HAVING
+        -- ORDER BY 
+    -- cannot use HAVING with window functions either only with aggregate functions 
+    -- most likely to use with a GROUP BY statement 

@@ -1,0 +1,27 @@
+-- level: medium
+-- original table: unique at the feedback_id level 
+    -- feedback_id | feedback_text | source_channel | comment_category 
+-- output table: 
+    -- feedback_id | feedback_text | source_channel| calculated category 
+
+
+
+-- solution 
+select distinct
+    feedback_id, 
+    feedback_text, 
+    source_channel, 
+    comment_category 
+from 
+    customer_feedback
+where 
+    comment_category != 'short_comments' 
+    AND 
+    source_channel = 'social_media'   
+
+-- notes
+    -- not super complicated of a question 
+    -- questions at the beginning that you would like to ask: 
+        -- [a] can i assume that the table is unique at the feedback_id level? 
+        -- [b] can i assume that there are no discrepancies/data errors the data entries of the team? 
+        -- [c] is it correct to assume that there are only three categories? 

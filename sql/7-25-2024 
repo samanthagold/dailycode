@@ -1,0 +1,27 @@
+-- level: medium 
+-- time: 
+-- input: id | country | description | designation | points | price | province | region_1 | region_2 | variety | winery  
+-- output: 
+    -- region | variety | total price sum 
+-- cleaning: 
+    -- remove the duplicated rows were region, price, and variety are exactly the same 
+    -- ignore rows with prices or regions having NULL value 
+-- UNABLE TO SOLVE 
+
+
+
+-- level: easy
+-- input: company_permalink | company_name | company_category_code | company_country_code | company_state_code | company_region | company_city 
+-- output: acquired quarter | number of acquisitions
+-- final formatting: order results by the quarters with the highest number of acquisitions first 
+-- columns of interest: 
+
+select 
+    acquired_quarter,
+    COUNT(*) as num_acquisitions
+from 
+    crunchbase_acquisitions 
+group by
+    acquired_quarter
+order by num_acquisitions DESC
+

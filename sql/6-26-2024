@@ -1,0 +1,34 @@
+-- 6/26/24
+-- level: easy 
+-- stage_of_order | week | quantity 
+-- expected output: week | quantity 
+
+
+-- my solution 
+SELECT SUM(cleaned.quantity) AS quantity, 
+       cleaned.week
+FROM(
+    SELECT stage_of_order, 
+        week, 
+        quantity, 
+        EXTRACT(QUARTER FROM week) AS quarter
+    FROM orders_analysis
+    ) AS cleaned
+WHERE quarter = 1
+GROUP BY week
+
+
+-- alternative solutions 
+SELECT week, 
+       SUM(quantity)
+FROM orders_analysis 
+WHERE extract(QUARTER FROM week) = 1 AND EXTRACT(year FROM week) = 2023 
+GROUP BY week 
+
+
+-- notes 
+    -- reminded about EXTRACT(DATETYPE FROM varname) syntax 
+    -- reminded WHERE comes before GROUP BY 
+    -- would probably be a good idea to work on saying these things out loud while doing them to get better at showing your thought process. 
+    -- got lucky in my solution - needed to restrict to 2023 only 
+

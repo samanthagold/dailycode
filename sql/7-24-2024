@@ -1,0 +1,52 @@
+-- level: medium
+-- email activity rank: total number of emails sent 
+-- output: user | total emails | activity rank 
+-- ordered by the total emails in descending order 
+-- sort users with same number of emails in alphabetical order 
+
+
+-- my proposed solution 
+
+with cleaned as (
+    select 
+        from_user, 
+        COUNT(DISTINCT id) AS total_emails
+    from 
+        google_gmail_emails 
+    group by from_user 
+    order by from_user
+
+)
+
+select 
+    row_number() OVER (ORDER BY user, total_emails DESC) AS activity_rank,
+    from_user, 
+    total_emails
+from 
+    cleaned 
+-- my solution was close, just not in the right order. not a big deal. 
+    
+
+-- actual solution 
+
+
+SELECT 
+    from_user, 
+    count(*) as total_emails, 
+    row_number() OVER (ORDER BY count(*) DESC, from_user ASC)
+FROM 
+    google_gmail_emails
+GROUP BY 
+    from_user
+ORDER BY 
+    2 DESC, 1
+
+
+-- notes
+    -- count(*) counts the number of rows for each 
+    -- remember that you can always do the summary functions within a window function. that's what they do 
+    -- in the above instead of creating an intermediate table. 
+    -- to get a unique ranking, you just need to do row_number 
+    -- ORDER BY 2 DESC, 1: using the column numbers to order things. the first column is from_user so 
+    -- first sql orders things in descending order using the total_emails column and then it orders 
+    -- everything from the from_user column. 
