@@ -1,0 +1,49 @@
+-- lyft: easy 
+-- output: hour | average_distance_traveled
+
+select 
+    hour, 
+    AVG(travel_distance) AS avg_distance 
+from 
+    lyft_rides
+group by 
+    hour
+
+-- lyft: medium 
+-- city | most profitable month | profit 
+
+-- table 1: city level 
+-- table 2: 
+
+with cleaned as(
+    -- cleaning payment details 
+    select 
+        orders.order_id, 
+        EXTRACT(MONTH FROM order_date) AS month, 
+        EXTRACT(YEAR FROM order_date) AS YEAR, 
+        city, 
+        SUM(order_fare) OVER (PARTITION BY city, EXTRACT(MONTH FROM order_date)) as city_month_profit 
+    from 
+        lyft_payment_details pay
+    INNER JOIN 
+    ( select
+        order_id, 
+        city
+      from
+        lyft_orders
+    ) orders 
+    ON pay.order_id = orders.order_id 
+)
+-- order_id | month level 
+-- output desired level: city level 
+
+select distinct  
+    city, 
+    month, 
+    city_month_profit 
+from 
+    cleaned 
+where 
+    city_month_profit = (select MAX(city_month_profit) from cleaned where YEAR = 2021) 
+    
+

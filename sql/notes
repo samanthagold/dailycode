@@ -1,0 +1,167 @@
+% template.tex
+% CSCI 0220 course staff, Brown University
+% (c) 2019
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% PREAMBLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The preamble is everything before the \begin{document}. Here, we define the
+% kind of document we are writing, import packages, set properties, and define
+% our own commands/environments.
+
+%%%%%%%%%% DOCUMENT CLASS AND PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage{amsmath}               % Environments, etc. for typesetting math.
+\usepackage{amsthm}                % Theorem/proof environments.
+\usepackage{amssymb}               % Various symbols.
+\usepackage{geometry}              % Easy interface to set page margins.
+\usepackage{fancyhdr}              % Custom headers/footers, page styles.
+\usepackage[shortlabels]{enumitem} % Stuff for enumerate & itemize environments.
+\usepackage{graphicx}              %Stuff for images 
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\usepackage[style=authoryear,backend=bibtex, maxbibnames=9, maxcitenames=2]{biblatex}
+\renewbibmacro{in:}{\ifentrytype{article}
+    {}
+    {\bibstring{in}\printunit{\intitlepunct}}
+}
+\setlength\bibitemsep{1.5\itemsep}
+
+\bibliography{labor_outline_test}
+%%%%%%%%%% VARIOUS HOUSEKEEPING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\geometry{margin=3cm}              % Sets margins on all sides.
+\pagestyle{fancyplain}             % Sets page style.
+\headheight 35pt                   % Sets the height of the header.
+\headsep    10pt                   % Sets space between the header and the body.
+
+\setlength{\parindent}{0em}        % Sets paragraph indentation.
+\setlength{\parskip}{0.5em}        % Sets space between paragraphs.
+
+\setlist[enumerate]{leftmargin=*}  % Normalize left margin in enumerate.
+\setlist[itemize]{leftmargin=*}    % Normalize left margin in itemize.
+%%%%%%%%%% ASSIGNMENT INFORMATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Edit these as appropriate.
+\newcommand\course{Labor}          % <-- the course
+\newcommand\semester{Fall 2023}  % <-- the current semester
+\newcommand\hwnum{5}               % <-- homework number
+
+%%%%%%%%%% HEADER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chead{\textbf{\Large SQL Notes}}
+\rhead{2024}
+\lhead{Sammy Gold}
+
+%%%%%%%%%% CUSTOM THINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The answer environment definition.
+\newenvironment{answer}[1]{
+  \subsubsection*{#1}
+}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+
+
+% Add your commands!
+
+% Here are some examples that your TAs find helpful.
+% Un-comment any or all of them to use. They all are to be used in math mode.
+
+% \newcommand{\N}{\mathbb{N}}         % The set of natural numbers ($4 \in \N$).
+% \newcommand{\Z}{\mathbb{Z}}         % The set of integers ($-3 \in \Z$).
+% \newcommand\lcm{\operatorname{lcm}} % Least common multiple ($\lcm(1,3) = 3$).
+% \newcommand\Pow{\ensuremath{\operatorname{\mathcal{P}}}}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Power set ($|\Pow(\{1\})| = 2$).
+% \newcommand\setbuilder[2]{\ensuremath{\left\{#1\;\middle|\;#2\right\}}}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Set-builder notation.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  ($A^{c} = \setbuilder{x}{x \not\in A}$)
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The document is everything between \begin{document} and \end{document}.
+% It contains everything that will show up in the output pdf file,
+% besides the header (which is defined above, and appears on every page).
+
+
+\begin{document}
+
+\section*{HAVING vs WHERE in SQL}
+
+In SQL, both the \texttt{HAVING} and \texttt{WHERE} clauses are used to filter data, but they differ in terms of \textbf{when} and \textbf{how} they are applied:
+
+\subsection*{1. WHERE Clause}
+\textbf{Purpose}: Filters rows \textbf{before} any grouping or aggregation (such as \texttt{GROUP BY}) is done.\\
+\textbf{Use}: Used to filter rows based on conditions on individual rows or columns.
+
+\begin{verbatim}
+SELECT employee_id, salary
+FROM employees
+WHERE salary > 50000;
+\end{verbatim}
+
+In this example, only employees with a salary greater than 50,000 will be returned. The filtering is done \textbf{before} the result set is aggregated (if there's any aggregation).
+
+\subsection*{2. HAVING Clause}
+\textbf{Purpose}: Filters groups \textbf{after} the aggregation process (like \texttt{GROUP BY}).\\
+\textbf{Use}: Used to filter results based on aggregate functions (such as \texttt{SUM}, \texttt{COUNT}, \texttt{AVG}, etc.).
+
+\begin{verbatim}
+SELECT department_id, AVG(salary) AS avg_salary
+FROM employees
+GROUP BY department_id
+HAVING AVG(salary) > 60000;
+\end{verbatim}
+
+In this case, the query groups the employees by \texttt{department\_id} and calculates the average salary for each group. The \texttt{HAVING} clause then filters out departments whose average salary is \textbf{not} greater than 60,000. This filtering happens \textbf{after} the aggregation.
+
+\subsection*{Key Differences}
+
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Feature} & \textbf{WHERE} & \textbf{HAVING} \\
+\hline
+\textbf{When applied} & Before grouping/aggregation & After grouping/aggregation \\
+\textbf{Used for} & Filtering rows & Filtering groups \\
+\textbf{Can filter by} & Column values and conditions & Aggregate functions and conditions \\
+\hline
+\end{tabular}
+
+\subsection*{Use Case Summary}
+- Use \texttt{WHERE} to filter \textbf{individual rows} before any grouping.
+- Use \texttt{HAVING} to filter \textbf{groups or aggregated data} after the grouping process is complete.
+
+\end{document}
